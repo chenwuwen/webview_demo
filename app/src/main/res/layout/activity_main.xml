@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!--引入变量-->
+    <data>
+
+        <variable
+            name="urlViewModel"
+            type="cn.kanyun.webview_demo.UrlViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".MainActivity">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/main_tool_bar"
+            android:layout_width="match_parent"
+            android:textAlignment="center"
+            android:layout_height="30dp"
+            android:background="#00897B"
+            app:layout_constraintTop_toTopOf="parent">
+
+        </androidx.appcompat.widget.Toolbar>
+
+
+        <LinearLayout
+            android:id="@+id/search_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="30dp"
+            android:background="@drawable/ic_search_border"
+            android:orientation="horizontal"
+            android:paddingVertical="3dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/ic_search" />
+
+            <!--默认值将只在预览视图(也就是在Android Studio)中显示，且默认值不能包含引号-->
+            <TextView
+                android:id="@+id/current_url"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="10dp"
+                android:gravity="center"
+                android:maxLines="1"
+                android:text="@{urlViewModel.url,default=PLACEHOLDER}"
+                android:textAlignment="center"
+                android:textColor="#f4f4f4"
+                tools:text="请输入服务器地址" />
+        </LinearLayout>
+
+        <top.androidman.SuperButton
+            android:id="@+id/open"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_marginHorizontal="100dp"
+            android:layout_marginTop="10dp"
+            app:color_normal="@color/color_accent"
+            app:color_pressed="#f4f4f4"
+            app:corner="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/search_layout"
+            app:text="打开"
+            app:textColor="@color/color_white"
+            app:textSize="12sp" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="showUrlViewModel"
+            type="cn.kanyun.webview_demo.CurrentShowUrlViewModel" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".WebViewActivity">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/tool_bar"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:background="#26883F"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:navigationIcon="@drawable/ic_exit"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <EditText
+                android:id="@+id/current_show_url"
+                android:gravity="center"
+                android:singleLine="true"
+                android:maxLines="1"
+                android:background="@drawable/ic_search_border"
+                android:text="@{showUrlViewModel.showUrl}"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginVertical="2dp"/>
+
+        </androidx.appcompat.widget.Toolbar>
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_gravity="top"
+            android:progressDrawable="@drawable/progress_style"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@+id/tool_bar" />
+
+        <WebView
+            android:id="@+id/web_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@+id/progress_bar">
+
+        </WebView>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
