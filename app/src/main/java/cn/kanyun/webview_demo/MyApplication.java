@@ -54,12 +54,12 @@ public class MyApplication extends Application {
         try {
 //            构建SnappyDB
             snappyDB = new SnappyDB.Builder(this)
-                    .directory(Environment.getExternalStorageDirectory().getAbsolutePath()) //可选的
+//                    .directory(Environment.getExternalStorageDirectory().getAbsolutePath()) //可选的(当我设置这项的时候,在虚拟机上会报错,保持默认好了)
                     .name(DB_NAME)//可选的
                     .build();
 //            打开SnappyDB
             snappyDB = DBFactory.open(this, DB_NAME);
-        } catch (SnappydbException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 

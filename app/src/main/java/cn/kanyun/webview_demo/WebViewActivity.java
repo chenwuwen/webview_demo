@@ -1,37 +1,33 @@
 package cn.kanyun.webview_demo;
 
-import android.content.DialogInterface;
+import android.app.DownloadManager;
+import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Bundle;
-
-import com.blankj.utilcode.util.NetworkUtils;
-import com.blankj.utilcode.util.ToastUtils;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-import com.orhanobut.logger.Logger;
-
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.databinding.DataBindingUtil;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
-
-import android.os.Handler;
+import android.os.Environment;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
+import com.blankj.utilcode.util.NetworkUtils;
+import com.blankj.utilcode.util.ToastUtils;
+import com.orhanobut.logger.Logger;
+
+import java.io.File;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import cn.kanyun.webview_demo.databinding.ActivityMainBinding;
 import cn.kanyun.webview_demo.databinding.ActivityWebviewBinding;
 
 public class WebViewActivity extends AppCompatActivity {
@@ -55,6 +51,8 @@ public class WebViewActivity extends AppCompatActivity {
 
     CurrentShowUrlViewModel currentShowUrlViewModel;
 
+    private IntentFilter intentFilter;
+
     ActivityWebviewBinding binding;
 
     /**
@@ -62,6 +60,8 @@ public class WebViewActivity extends AppCompatActivity {
      * 这个值的更改是在MyWebViewClient中的onPageFinished方法中更改的
      */
     public static String currentPageTitle;
+
+    DownloadReceiver downloadReceiver;
 
 
     @Override
@@ -78,6 +78,13 @@ public class WebViewActivity extends AppCompatActivity {
 
 
         ButterKnife.bind(this);
+
+        downloadReceiver = new DownloadReceiver();
+        intentFilter = new IntentFilter();
+//        只有持有相同的action的接受者才能接收此广播
+        intentFilter.addAction(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
+//        注册广播
+        this.registerReceiver(downloadReceiver, intentFilter);
 
         setSupportActionBar(toolbar);
 //        在xml中设置文字/icon并不生效
@@ -190,9 +197,11 @@ public class WebViewActivity extends AppCompatActivity {
 //        加载url，也可以执行js函数,当执行js时 参数为 "javascript: xxx.js"
 //        webView.loadUrl("javascript:adduplistener()");
         if (url.isEmpty()) {
-            url = "http://www.baidu.com";
+//            url = "http://www.baidu.com";
+//            在android模拟器中,如果要访问宿主电脑上的服务,需要使用的ip是10.0.2.2
+            url = "http://10.0.2.2:8000";
         }
-
+        Logger.d("首次Load地址：" + url);
         webView.loadUrl(url);
 //        Handler handler = new Handler();
 //        handler.postDelayed(new Runnable() {
@@ -323,6 +332,23 @@ public class WebViewActivity extends AppCompatActivity {
      * 保存成离线网页
      */
     private void saveUrl() {
+        String name = currentPageTitle + ".mht";
+        webView.saveWebArchive(Environment.getExternalStorageDirectory()
+                + File.separator + name);
+        ToastUtils.showLong("已保存网页到：" + Environment.getExternalStorageDirectory()
+                + File.separator + name);
     }
 
+    /**
+     * 加载离线网页
+     *
+     * @param filePath
+     */
+    private void loadArchive(String filePath) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            webView.loadUrl("file:///" + filePath);
+        } else {
+            webView.loadDataWithBaseURL(null, filePath, "application/x-webarchive-xml", "UTF-8", null);
+        }
+    }
 }

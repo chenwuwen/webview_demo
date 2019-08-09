@@ -36,11 +36,14 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.kanyun.webview_demo.databinding.ActivityMainBinding;
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.EasyPermissions;
 import scut.carson_ho.searchview.ICallBack;
 import scut.carson_ho.searchview.bCallBack;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final int PERMISSION_STORAGE_CODE = 0;
     Context context;
     scut.carson_ho.searchview.SearchView searchView;
 
@@ -63,6 +66,11 @@ public class MainActivity extends AppCompatActivity {
     //    会自动生成该类,这个按钮需要使用Android Studio在xml中找到根布局,然后鼠标光标停留在根布局上,
     //    会出现小灯泡,然后点击小灯泡图标,就可以将布局更改为databinding布局)
     ActivityMainBinding binding;
+
+    /**
+     * 权限
+     */
+    private static final String[] perms = {"android.permission.READ_EXTERNAL_STORAGE", "android.permission.WRITE_EXTERNAL_STORAGE"};
 
     private LinearLayoutManager layoutManager;
 
@@ -195,6 +203,13 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        EasyPermissions.requestPermissions(this, "hellp",
+                PERMISSION_STORAGE_CODE, perms);
+    }
+
     @OnClick(R.id.search_layout)
     public void input() {
         Logger.d("跳转到还有历史记录的搜索布局");
@@ -240,5 +255,19 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent();
         intent.setClass(context, WebViewActivity.class);
         startActivity(intent);
+    }
+
+    @AfterPermissionGranted(PERMISSION_STORAGE_CODE)
+    public void perResult() {
+        if (EasyPermissions.hasPermissions(context, perms)) {
+            // 已经赋予了权限
+            Logger.d("被@AfterPermissionGranted注解的方法被执行,且已经获取到权限");
+        } else {
+            Logger.d("被@AfterPermissionGranted注解的方法被执行,但是没有获取到权限");
+            // 没有赋予权限，此时请求权限
+//            第一个参数：Context对象  第二个参数：权限弹窗上的文字提示语。告诉用户，这个权限用途。 第三个参数：这次请求权限的唯一标示，code。 第四个参数 : 一些系列的权限
+            EasyPermissions.requestPermissions(this, "请确认允许权限,这将打开您的相机为您制作个性皮肤",
+                    PERMISSION_STORAGE_CODE, perms);
+        }
     }
 }
