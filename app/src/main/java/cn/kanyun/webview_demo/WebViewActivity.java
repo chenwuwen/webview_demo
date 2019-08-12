@@ -81,8 +81,9 @@ public class WebViewActivity extends AppCompatActivity {
 
         downloadReceiver = new DownloadReceiver();
         intentFilter = new IntentFilter();
-//        只有持有相同的action的接受者才能接收此广播
+//        只有持有相同的action的接受者才能接收此广播(这里注册监听两个广播,一个是系统的下载广播,一个是自定义的广播)
         intentFilter.addAction(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
+        intentFilter.addAction(FileDownLoadListener.DOWNLOAD_FILE_NAME_ACTION);
 //        注册广播
         this.registerReceiver(downloadReceiver, intentFilter);
 
@@ -199,7 +200,7 @@ public class WebViewActivity extends AppCompatActivity {
         if (url.isEmpty()) {
 //            url = "http://www.baidu.com";
 //            在android模拟器中,如果要访问宿主电脑上的服务,需要使用的ip是10.0.2.2
-            url = "http://10.0.2.2:8000";
+            url = "http://m.pinduoduo.com/download.html";
         }
         Logger.d("首次Load地址：" + url);
         webView.loadUrl(url);

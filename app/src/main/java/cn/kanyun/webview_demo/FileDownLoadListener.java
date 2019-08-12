@@ -11,6 +11,9 @@ import android.webkit.DownloadListener;
 
 import com.blankj.utilcode.util.ToastUtils;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static com.blankj.utilcode.util.ActivityUtils.startActivity;
 
 /**
@@ -23,6 +26,8 @@ import static com.blankj.utilcode.util.ActivityUtils.startActivity;
  */
 public class FileDownLoadListener implements DownloadListener {
 
+    public static final String DOWNLOAD_FILE_NAME_ACTION = "DOWNLOAD_FILE_NAME_ACTION";
+
 
     @Override
     public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
@@ -34,11 +39,20 @@ public class FileDownLoadListener implements DownloadListener {
 
         String fileName = url.substring(url.lastIndexOf("/") + 1);
 //        使用系统下载服务下载
-        downloadBySystem(url, "正在下载", BuildConfig.APPLICATION_ID, fileName);
-//        发送下载广播 (系统自动发广播，所以我们只需要做两件事,1.编写广播接收者，2.是注册广播接收者)
+        long id = downloadBySystem(url, "正在下载", BuildConfig.APPLICATION_ID, fileName);
+//        发送下载广播 (系统自动发广播[这个广播是关于下载的广播]，所以我们只需要做两件事,1.编写广播接收者，2.是注册广播接收者)
 //        当Android DownloadManager下载某一个任务完成时候，可以立即获得下载任务完成的消息通知。
 //        Android DownloadManager通过注册一个广播监听系统的广播事件完成此操作，在创建广播时候，
 //        需要指明过滤器为：DownloadManager.ACTION_DOWNLOAD_COMPLETE
+
+//        发送广播,[文件名]
+        Intent downloadIntent = new Intent();
+        downloadIntent.setAction(DOWNLOAD_FILE_NAME_ACTION);
+//        将下载的相关信息作为参数发送广播
+        DownLoadEntity downLoadEntity = new DownLoadEntity(id, fileName);
+        downloadIntent.putExtra("file", downLoadEntity);
+        MyApplication.getInstance().sendBroadcast(downloadIntent);
+
 
     }
 
@@ -49,6 +63,7 @@ public class FileDownLoadListener implements DownloadListener {
      * @param url
      * @param contentDisposition
      * @param mimeType
+     * @param subPath 外部目录中的路径，包括目标文件名
      */
     public long downloadBySystem(String url, String title, String desc, String subPath) {
         DownloadManager downloadManager = (DownloadManager) MyApplication.getInstance().getSystemService(Context.DOWNLOAD_SERVICE);
@@ -89,7 +104,7 @@ public class FileDownLoadListener implements DownloadListener {
 
         // 下载过程和下载完成后通知栏有通知消息。
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE | DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-
+//        表示设置下载地址为sd卡的Download文件夹，文件名为subPath。
         request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, subPath);
 //        另外可选一下方法，自定义下载路径
 //        指定下载文件地址，使用这个指定地址可不需要WRITE_EXTERNAL_STORAGE权限。

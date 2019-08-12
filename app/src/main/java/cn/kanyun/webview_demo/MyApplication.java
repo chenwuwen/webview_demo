@@ -1,14 +1,12 @@
 package cn.kanyun.webview_demo;
 
 import android.app.Application;
-import android.os.Environment;
 
 import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.Logger;
 import com.snappydb.DB;
 import com.snappydb.DBFactory;
 import com.snappydb.SnappyDB;
-import com.snappydb.SnappydbException;
 
 public class MyApplication extends Application {
 
