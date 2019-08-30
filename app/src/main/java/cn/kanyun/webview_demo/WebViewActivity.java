@@ -200,7 +200,8 @@ public class WebViewActivity extends AppCompatActivity {
         if (url.isEmpty()) {
 //            url = "http://www.baidu.com";
 //            在android模拟器中,如果要访问宿主电脑上的服务,需要使用的ip是10.0.2.2
-            url = "http://m.pinduoduo.com/download.html";
+//            url = "http://10.0.2.2:8000";
+            url = "http://hao.uc.cn";
         }
         Logger.d("首次Load地址：" + url);
         webView.loadUrl(url);
@@ -262,6 +263,8 @@ public class WebViewActivity extends AppCompatActivity {
             webView.destroy();
             webView = null;
         }
+//        取消注册广播
+        this.unregisterReceiver(downloadReceiver);
         super.onDestroy();
     }
 

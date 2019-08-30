@@ -8,11 +8,17 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.StrictMode;
 import android.webkit.DownloadListener;
+import android.widget.Toast;
 
 import com.blankj.utilcode.util.ToastUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static com.blankj.utilcode.util.ActivityUtils.startActivity;
 
@@ -23,6 +29,7 @@ import static com.blankj.utilcode.util.ActivityUtils.startActivity;
  * 1.跳转浏览器下载
  * 2.使用系统的下载服务
  * 3.自定义下载任务
+ * 关于下载比较详细的描述：https://github.com/chiclaim/AndroidUpdater
  */
 public class FileDownLoadListener implements DownloadListener {
 
@@ -38,8 +45,10 @@ public class FileDownLoadListener implements DownloadListener {
 //        startActivity(intent);
 
         String fileName = url.substring(url.lastIndexOf("/") + 1);
+
 //        使用系统下载服务下载
         long id = downloadBySystem(url, "正在下载", BuildConfig.APPLICATION_ID, fileName);
+
 //        发送下载广播 (系统自动发广播[这个广播是关于下载的广播]，所以我们只需要做两件事,1.编写广播接收者，2.是注册广播接收者)
 //        当Android DownloadManager下载某一个任务完成时候，可以立即获得下载任务完成的消息通知。
 //        Android DownloadManager通过注册一个广播监听系统的广播事件完成此操作，在创建广播时候，
@@ -60,12 +69,12 @@ public class FileDownLoadListener implements DownloadListener {
     /**
      * 系统下载服务
      *
-     * @param url
-     * @param contentDisposition
-     * @param mimeType
-     * @param subPath 外部目录中的路径，包括目标文件名
+     * @param url      下载Url
+     * @param title    通知栏标题
+     * @param desc     通知栏描述
+     * @param fileName 下载文件名
      */
-    public long downloadBySystem(String url, String title, String desc, String subPath) {
+    public long downloadBySystem(String url, String title, String desc, String fileName) {
         DownloadManager downloadManager = (DownloadManager) MyApplication.getInstance().getSystemService(Context.DOWNLOAD_SERVICE);
         long ID;
 
@@ -89,8 +98,9 @@ public class FileDownLoadListener implements DownloadListener {
         request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI);
 
 
-        // 通知栏中将出现的内容
+//        通知栏中将出现的内容
         request.setTitle(title);
+//        下载描述
         request.setDescription(desc);
 
         //7.0以上的系统适配
@@ -104,8 +114,12 @@ public class FileDownLoadListener implements DownloadListener {
 
         // 下载过程和下载完成后通知栏有通知消息。
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE | DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+
+
 //        表示设置下载地址为sd卡的Download文件夹，文件名为subPath。
-        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, subPath);
+        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
+
+
 //        另外可选一下方法，自定义下载路径
 //        指定下载文件地址，使用这个指定地址可不需要WRITE_EXTERNAL_STORAGE权限。
 //        request.setDestinationUri()
@@ -119,6 +133,7 @@ public class FileDownLoadListener implements DownloadListener {
 
         //启动系统下载界面(这会使页面跳到文件管理中的DownLoad目录)
 //        startActivity(new android.content.Intent(DownloadManager.ACTION_VIEW_DOWNLOADS));
+//        加入下载队列
         ID = downloadManager.enqueue(request);
         ToastUtils.showLong("正在下载,下载ID:" + ID);
         return ID;
@@ -138,4 +153,6 @@ public class FileDownLoadListener implements DownloadListener {
             ex.printStackTrace();
         }
     }
+
+
 }
